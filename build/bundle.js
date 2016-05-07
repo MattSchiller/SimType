@@ -54,7 +54,6 @@
 	'use strict';
 
 	var React = __webpack_require__(2);
-	//Menu    = require('./menu.jsx');
 	var SimType = __webpack_require__(159);
 
 	var App = React.createClass({
@@ -62,7 +61,7 @@
 
 
 	  render: function render() {
-	    var content = "Lorem ipsu" + "~p600" + "m dolor sit amet, ~b2 consectetur adipiscing elit, " + "sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad " + "minim veniam, ~b10quis nostrud exercitation ullamco laboris nisi ut aliquip ex" + "ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit" + "esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat~b2" + "non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
+	    var content = "function " + "~Cfunc " + "getResume" + "~CfName " + "() {" + "~l1 " + "~cindent,comment " + "Here's some indented text ",
 	        options = { classes: true };
 	    return React.createElement(SimType, {
 	      content: content,
@@ -19674,19 +19673,20 @@
 /* 159 */
 /***/ function(module, exports, __webpack_require__) {
 
-	"use strict";
+	'use strict';
 
 	var React = __webpack_require__(2);
+	var TypedBucket = __webpack_require__(160);
 
 	//Given a string, this module simulates typing of that string into the div
 
 	var SimType = React.createClass({
-	  displayName: "SimType",
+	  displayName: 'SimType',
 
 	  getInitialState: function getInitialState() {
 	    return {
-	      typed: "",
-	      contentPos: -1
+	      contentPos: -1,
+	      typed: [new TypedBucket()]
 	    };
 	  },
 
@@ -19694,7 +19694,7 @@
 	    return {
 	      content: "",
 	      options: {
-	        classes: false
+	        classes: true
 	      }
 	    };
 	  },
@@ -19723,88 +19723,168 @@
 	    var contentPos = this.state.contentPos + 1,
 	        nextChar = this.props.content[contentPos];
 
-	    if (this.props.content[contentPos] == this._escape) {
+	    if (nextChar == this._escape) {
 	      //Let's attempt to execute the action command
-	      //Backspace: ~b#, # = number of backspaces
-	      //Pause:     ~p#, # = time in ms to wait
 	      if (contentPos + 1 < this.props.content.length) {
 	        contentPos++;
 
 	        var actionChar = this.props.content[contentPos];
-	        var value = this.getValue(this.props.content.substring(contentPos, this.props.content.length)),
-	            digits = value.toString().length;
-
-	        contentPos += digits;
-
-	        switch (actionChar) {
-	          case this._backspace:
-	            this.backspace(value, contentPos);
-	            return;
-
-	          case this._pause:
-	            this.pause(value, contentPos);
-	            return;
-
-	        }
+	        this.attemptAction(actionChar, contentPos);
 	      }
+
+	      return;
 	    }
 
 	    //We're appending a regular character or an errored escape char
-	    var typed = this.state.typed + nextChar,
+	    var typed = this.state.typed,
 	        self = this;
 
+	    typed[typed.length - 1].text += nextChar;
+
 	    setTimeout(function () {
-	      self.setState({
-	        typed: typed,
-	        contentPos: contentPos
-	      });
+	      self.setState({ typed: typed, contentPos: contentPos });
 	    }, self._charTimeout * Math.random());
 	  },
 
-	  backspace: function backspace(iterations, contentPos) {
-	    var typed = this.state.typed.slice(0, -1);
+	  attemptAction: function attemptAction(action, contentPos) {
+	    //Backspace: ~b#, # = number of backspaces
+	    //Pause:     ~p#, # = time in ms to wait
+	    if (this.escapedActions[action]) {
+	      contentPos++;
+	      var value = this.getValue(contentPos),
+	          digits = value.toString().length;
 
-	    if (typed.length == 0 || iterations == 1)
-	      //We're done backspacing after this call
-	      this._backspacing = false;else {
+	      contentPos += digits;
+	      this.escapedActions[action].call(this, value, contentPos);
+	    }
+	  },
 
-	      this._backspacing = true;
+	  escapedActions: {
+	    b: function b(iterations, contentPos) {
+	      //Backspace
+	      var typed = this.state.typed,
+	          typedPos = typed.length - 1;
 
-	      var self = this,
-	          nextIterations = iterations - 1;
+	      iterations = parseInt(iterations);
+
+	      if (Number.isInteger(iterations)) {
+
+	        typed[typedPos].text = typed[typedPos].text.slice(0, -1);
+
+	        //RIGHT NOW WE LIMIT BEHAVIOR TO NEVER ALLOW BACKSPACING MORE THAN THE CURRENT TEXT BUCKET
+
+	        //Check if this text bucket is empty
+	        if (typed[typedPos].text.length == 0 || iterations == 1) {
+	          //We're done backspacing after this call
+	          this._backspacing = false;
+	          if (typed[typedPos].text.length != 0) typed.push[new TypedBucket()];
+	        } else {
+	          this._backspacing = true;
+
+	          var self = this,
+	              nextIterations = iterations - 1;
+
+	          setTimeout(function () {
+	            self.escapedActions.b.call(self, nextIterations, contentPos);
+	          }, self._backTimeout);
+	        }
+	      }
+
+	      this.setState({ typed: typed, contentPos: contentPos });
+	    },
+
+	    p: function p(timeout, contentPos) {
+	      //Pause
+	      var self = this;
+
+	      timeout = parseInt(timeout);
 
 	      setTimeout(function () {
-	        self.backspace(nextIterations, contentPos);
-	      }, self._backTimeout);
+	        self.setState({ contentPos: contentPos });
+	      }, timeout);
+	    },
+
+	    c: function c(classVal, contentPos) {
+	      //Creates a new typedBucket for this new piece of text and applies the class immediately
+	      var typed = this.state.typed,
+	          typedPos = typed.length;
+
+	      typed.push(new TypedBucket());
+
+	      classVal = classVal.replace(",", " ");
+	      typed[typedPos].className = classVal;
+
+	      this.setState({ typed: typed, contentPos: contentPos });
+	    },
+
+	    C: function C(classVal, contentPos) {
+	      //Closes the current typedBucket and applies the given class
+	      var typed = this.state.typed,
+	          typedPos = typed.length - 1;
+
+	      classVal = classVal.replace(",", " ");
+	      typed[typedPos].className = this.classDefs[classVal];
+	      typed.push(new TypedBucket());
+
+	      this.setState({ typed: typed, contentPos: contentPos });
+	    },
+
+	    l: function l(immaterial, contentPos) {
+	      //Inserts the number of line breaks specified
+	      var typed = this.state.typed,
+	          typedPos = typed.length;
+
+	      typed.push(new TypedBucket());
+	      typed[typedPos].className = this.classDefs.line;
+	      typed.push(new TypedBucket());
+
+	      var self = this;
+	      setTimeout(function () {
+	        self.setState({ typed: typed, contentPos: contentPos });
+	      }, self._charTimeout);
 	    }
 
-	    this.setState({
-	      typed: typed,
-	      contentPos: contentPos
-	    });
 	  },
 
-	  pause: function pause(timeout, contentPos) {
-	    var self = this;
-
-	    setTimeout(function () {
-	      self.setState({ contentPos: contentPos });
-	    }, timeout);
+	  classDefs: {
+	    func: "function",
+	    comm: "comment",
+	    fName: "funcName",
+	    math: "math",
+	    indent: "indent",
+	    line: "line"
 	  },
 
-	  getValue: function getValue(str) {
-	    var myNum = str.match(/[0-9]+/);
-	    if (myNum.length == 0) return 0;
-	    return parseInt(myNum[0]);
+	  getValue: function getValue(contentPos) {
+	    var str = this.props.content.substring(contentPos, this.props.content.length),
+	        val = str.match(/[^\s]+/);
+
+	    if (val.length == 0) return false;
+	    return val[0];
 	  },
 
 	  convertTyped: function convertTyped() {
-	    return this.state.typed;
+	    var formattedTyped = this.state.typed.map(function (segment, i) {
+	      if (~segment.className.indexOf(this.classDefs.line)) {
+	        return React.createElement('br', { key: i });
+	      } else {
+	        return React.createElement(
+	          'span',
+	          {
+	            className: segment.className,
+	            key: i },
+	          segment.text
+	        );
+	      }
+	    });
+
+	    return formattedTyped;
 	  },
 
 	  render: function render() {
+	    var myClass = "thisClass";
 	    return React.createElement(
-	      "div",
+	      'div',
 	      null,
 	      this.convertTyped()
 	    );
@@ -19813,6 +19893,21 @@
 	});
 
 	module.exports = SimType;
+
+/***/ },
+/* 160 */
+/***/ function(module, exports) {
+
+	"use strict";
+
+	var TypedBucket = function TypedBucket() {
+	  var className = arguments.length <= 0 || arguments[0] === undefined ? "" : arguments[0];
+
+	  this.text = "";
+	  this.className = "";
+	};
+
+	module.exports = TypedBucket;
 
 /***/ }
 /******/ ]);

@@ -1,0 +1,27 @@
+html {
+  font-family: Inconsolata, sans-serif;
+  background: #49483E;
+  color: #E6E6E5;
+}
+
+.function {
+  color: #4BA6CB;
+  font-style: italic;
+}
+
+.funcName {
+  color: #80B028;
+}
+
+.comment {
+  color: #75715E;
+}
+
+.math {
+  color: #D07E22;
+}
+
+.indent {
+  display: block;
+  text-indent: 20px;
+}

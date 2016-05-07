@@ -1,3 +1,15 @@
 html {
-  font-family: Oswald, sans-serif;
+  font-family: Inconsolata, sans-serif;
+}
+
+.thisClass {
+  background-color: green;
+}
+
+.function {
+  color: green;
+}
+
+.comment {
+  color: grey;
 }
