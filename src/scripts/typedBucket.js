@@ -1,6 +1,6 @@
-var TypedBucket = function(className = "") {
-  this.text = "";
-  this.className = "";
+var TypedBucket = function(text = "", className = "") {
+  this.text = text;
+  this.className = className;
 };
 
 module.exports = TypedBucket;

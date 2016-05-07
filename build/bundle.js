@@ -61,7 +61,7 @@
 
 
 	  render: function render() {
-	    var content = "function " + "~Cfunc " + "getResume" + "~CfName " + "() {" + "~l1 " + "~cindent,comment " + "Here's some indented text ",
+	    var content = "~Cindent0~" + "function " + "~Cfunc~" + "getContactInfo" + "~CfuncName~" + "() {" + "~l0~" + "~Cindent1~" + "var" + "~Cfunc~" + " email " + "~ckey~" + "= " + "~q+~" + "~p500~" + "matt.s.schiller@gmail.com" + "~q-~",
 	        options = { classes: true };
 	    return React.createElement(SimType, {
 	      content: content,
@@ -19703,10 +19703,9 @@
 	    this._charTimeout = 50;
 	    this._backTimeout = 100;
 	    this._escape = "~";
-	    this._backspace = "b";
-	    this._pause = "p";
-	    this._openClass = "c";
-	    this._closeClass = "C";
+	    this._qChar = '"';
+	    this._newLine = "line";
+	    this._indent = "indent";
 
 	    this.updateTyped();
 	  },
@@ -19739,7 +19738,13 @@
 	    var typed = this.state.typed,
 	        self = this;
 
-	    typed[typed.length - 1].text += nextChar;
+	    if (this._quoting) {
+	      //Insert next char befor trailing space
+	      var text = typed[typed.length - 1].text,
+	          len = text.length;
+
+	      typed[typed.length - 1].text = text.slice(0, -1) + nextChar + text.slice(len - 1);
+	    } else typed[typed.length - 1].text += nextChar;
 
 	    setTimeout(function () {
 	      self.setState({ typed: typed, contentPos: contentPos });
@@ -19757,6 +19762,14 @@
 	      contentPos += digits;
 	      this.escapedActions[action].call(this, value, contentPos);
 	    }
+	  },
+
+	  getValue: function getValue(contentPos) {
+	    var str = this.props.content.substring(contentPos, this.props.content.length),
+	        val = str.match(/[^~]+/);
+
+	    if (val.length == 0) return false;
+	    return val[0];
 	  },
 
 	  escapedActions: {
@@ -19809,10 +19822,7 @@
 	      var typed = this.state.typed,
 	          typedPos = typed.length;
 
-	      typed.push(new TypedBucket());
-
-	      classVal = classVal.replace(",", " ");
-	      typed[typedPos].className = classVal;
+	      typed.push(new TypedBucket("", classVal));
 
 	      this.setState({ typed: typed, contentPos: contentPos });
 	    },
@@ -19822,8 +19832,9 @@
 	      var typed = this.state.typed,
 	          typedPos = typed.length - 1;
 
-	      classVal = classVal.replace(",", " ");
-	      typed[typedPos].className = this.classDefs[classVal];
+	      console.log("classVal:", classVal);
+
+	      typed[typedPos].className += typed[typedPos].className == "" ? classVal : " " + classVal;
 	      typed.push(new TypedBucket());
 
 	      this.setState({ typed: typed, contentPos: contentPos });
@@ -19835,50 +19846,84 @@
 	          typedPos = typed.length;
 
 	      typed.push(new TypedBucket());
-	      typed[typedPos].className = this.classDefs.line;
+	      typed[typedPos].className = this._newLine;
 	      typed.push(new TypedBucket());
 
 	      var self = this;
 	      setTimeout(function () {
 	        self.setState({ typed: typed, contentPos: contentPos });
 	      }, self._charTimeout);
+	    },
+
+	    q: function q(onOrOff, contentPos) {
+	      //Adds a double quotes and conveys that there is a trailing quotation mark
+	      var typed = this.state.typed;
+
+	      if (onOrOff == '+') {
+	        this._quoting = true;
+	        typed.push(new TypedBucket(this._qChar + this._qChar, "str"));
+	      } else this._quoting = false;
+
+	      this.setState({ typed: typed, contentPos: contentPos });
 	    }
 
 	  },
 
-	  classDefs: {
-	    func: "function",
-	    comm: "comment",
-	    fName: "funcName",
-	    math: "math",
-	    indent: "indent",
-	    line: "line"
-	  },
-
-	  getValue: function getValue(contentPos) {
-	    var str = this.props.content.substring(contentPos, this.props.content.length),
-	        val = str.match(/[^\s]+/);
-
-	    if (val.length == 0) return false;
-	    return val[0];
-	  },
-
 	  convertTyped: function convertTyped() {
-	    var formattedTyped = this.state.typed.map(function (segment, i) {
-	      if (~segment.className.indexOf(this.classDefs.line)) {
-	        return React.createElement('br', { key: i });
+	    // let self = this
+	    //   , formattedTyped = this.state.typed.map(function(segment, i) {
+	    //     //console.log(segment);
+	    //       if (~segment.className.indexOf( self._newLine )) {
+	    //         return <br key = { i } />
+
+	    //       } else if (~segment.className.indexOf( self._indent ))
+	    //         return <pre>  </pre>
+
+	    //       else {
+
+	    //       }
+	    //     });
+
+	    var typed = this.state.typed,
+	        j = 0,
+	        formattedTyped = [];
+
+	    while (j < typed.length) {
+	      if (~typed[j].className.indexOf(this._indent)) {
+	        //Get the className etc for this div
+	        var thisLineClass = typed[j].className,
+	            lineContents = [];
+
+	        j++;
+	        //Build the spans for the line's contents
+	        while (j < typed.length && typed[j].className != this._newLine) {
+	          lineContents.push(this.toSpan(typed[j], j));
+	          j++;
+	        }
+
+	        formattedTyped.push(React.createElement(
+	          'div',
+	          { className: thisLineClass },
+	          lineContents
+	        ));
 	      } else {
-	        return React.createElement(
-	          'span',
-	          {
-	            className: segment.className,
-	            key: i },
-	          segment.text
-	        );
+	        formattedTyped.push(this.toSpan(typed[j], j));
 	      }
-	    });
+
+	      j++;
+	    }
 
 	    return formattedTyped;
+	  },
+
+	  toSpan: function toSpan(segment, j) {
+	    return React.createElement(
+	      'span',
+	      {
+	        className: segment.className,
+	        key: j },
+	      segment.text
+	    );
 	  },
 
 	  render: function render() {
@@ -19901,10 +19946,11 @@
 	"use strict";
 
 	var TypedBucket = function TypedBucket() {
-	  var className = arguments.length <= 0 || arguments[0] === undefined ? "" : arguments[0];
+	  var text = arguments.length <= 0 || arguments[0] === undefined ? "" : arguments[0];
+	  var className = arguments.length <= 1 || arguments[1] === undefined ? "" : arguments[1];
 
-	  this.text = "";
-	  this.className = "";
+	  this.text = text;
+	  this.className = className;
 	};
 
 	module.exports = TypedBucket;

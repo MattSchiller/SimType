@@ -5,8 +5,9 @@ var SimType = require('./simType.jsx');
 var App = React.createClass({
   
   render: function() {
-    let content = "function " + "~Cfunc " + "getResume" + "~CfName " + "() {"  + "~l1 "
-                  + "~cindent,comment " + "Here's some indented text "
+    let content = "~Cindent0~" + "function " + "~Cfunc~" + "getContactInfo" + "~CfuncName~" + "() {"  + "~l0~"
+                  + "~Cindent1~"
+                      + "var" + "~Cfunc~" + " email " + "~ckey~" + "= " + "~q+~" + "~p500~" + "matt.s.schiller@gmail.com" + "~q-~"
       , options = { classes: true }
     return <SimType
               content = { content }

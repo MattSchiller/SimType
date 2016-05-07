@@ -24,10 +24,9 @@ var SimType = React.createClass({
     this._charTimeout = 50;
     this._backTimeout = 100;
     this._escape      = "~";
-    this._backspace   = "b";
-    this._pause       = "p";
-    this._openClass   = "c";
-    this._closeClass  = "C";
+    this._qChar       = '"';
+    this._newLine     = "line";
+    this._indent      = "indent";
     
     this.updateTyped();
   },
@@ -60,7 +59,14 @@ var SimType = React.createClass({
     var typed = this.state.typed
       , self  = this;
     
-    typed[ typed.length-1 ].text += nextChar;
+    if (this._quoting) {    //Insert next char befor trailing space
+      let text = typed[ typed.length-1 ].text
+        , len  = text.length;
+      
+      typed[ typed.length-1 ].text = text.slice(0, -1) + nextChar + text.slice(len-1);
+    
+    } else
+      typed[ typed.length-1 ].text += nextChar;
     
     setTimeout(function() {
         self.setState({ typed, contentPos });
@@ -78,6 +84,14 @@ var SimType = React.createClass({
       contentPos += digits;
       this.escapedActions[ action ].call( this, value, contentPos );
     }
+  },
+  
+  getValue: function(contentPos) {
+    let str = this.props.content.substring( contentPos,  this.props.content.length)
+      , val = str.match( /[^~]+/ );
+      
+    if (val.length == 0) return false;
+    return val[0];
   },
   
   escapedActions: {
@@ -131,10 +145,7 @@ var SimType = React.createClass({
       let typed = this.state.typed
         , typedPos = typed.length;
         
-      typed.push( new TypedBucket );
-      
-      classVal = classVal.replace(",", " ")
-      typed[ typedPos ].className = classVal;
+      typed.push( new TypedBucket( "", classVal ) );
       
       this.setState({ typed, contentPos});
     },
@@ -144,8 +155,9 @@ var SimType = React.createClass({
       let typed = this.state.typed
         , typedPos = typed.length - 1;
       
-      classVal = classVal.replace(",", " ")
-      typed[ typedPos ].className = this.classDefs[ classVal ];
+      console.log("classVal:", classVal);
+      
+      typed[ typedPos ].className += typed[ typedPos ].className == "" ? classVal : " " + classVal;
       typed.push( new TypedBucket );
       
       this.setState({ typed, contentPos });
@@ -157,49 +169,72 @@ var SimType = React.createClass({
         , typedPos = typed.length;
       
       typed.push( new TypedBucket );
-      typed[ typedPos ].className = this.classDefs.line;
+      typed[ typedPos ].className = this._newLine;
       typed.push( new TypedBucket );
       
       var self = this;
       setTimeout(function() {
           self.setState({ typed, contentPos });
         }, self._charTimeout);
+    },
+    
+    q: function( onOrOff, contentPos ) {
+      //Adds a double quotes and conveys that there is a trailing quotation mark
+      let typed = this.state.typed;
+      
+      if (onOrOff == '+') {
+        this._quoting = true;
+        typed.push( new TypedBucket( this._qChar + this._qChar, "str" ));
+      } else this._quoting = false;
+      
+      this.setState({ typed, contentPos });
+      
+    },
+    
+  },
+
+  convertTyped: function() {
+    let typed = this.state.typed
+      , j = 0
+      , formattedTyped = [];
+      
+    while (j < typed.length) {
+      if (~typed[ j ].className.indexOf( this._indent ) ) {
+        //Get the className etc for this div
+        let thisLineClass = typed[j].className
+          , lineContents = [];
+        
+        j++;
+        //Build the spans for the line's contents
+        while ( j < typed.length && typed[j].className != this._newLine) {
+          lineContents.push( this.toSpan( typed[j], j ) );
+          j++;
+        }
+        
+        formattedTyped.push(
+          <div
+            className = { thisLineClass }
+            key = { j }
+              >
+            { lineContents }
+          </div>
+          )
+      } else {
+        formattedTyped.push( this.toSpan( typed[j], j ) );
+      }
+      
+      j++;
     }
     
-  },
-
-  classDefs: {
-      func:   "function"
-    , comm:   "comment"
-    , fName:  "funcName"
-    , math:   "math"
-    , indent: "indent"
-    , line:   "line"
-  },
-
-  getValue: function(contentPos) {
-    let str = this.props.content.substring( contentPos,  this.props.content.length)
-      , val = str.match( /[^\s]+/ );
-      
-    if (val.length == 0) return false;
-    return val[0];
+    return formattedTyped;
   },
   
-  convertTyped: function() {
-    let formattedTyped = this.state.typed.map(function(segment, i) {
-        if (~segment.className.indexOf( this.classDefs.line )) {
-          return <br key = { i } />
-          
-        } else {
-          return <span
-                    className = { segment.className }
-                    key = { i } >
-                      { segment.text }
-                 </span>
-        }
-      });
-    
-    return formattedTyped;
+  toSpan: function(segment, j) {
+    return <span
+              className = { segment.className }
+              key = { j } >
+                { segment.text }
+           </span>
   },
   
   render: function() {

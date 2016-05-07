@@ -4,7 +4,12 @@ html {
   color: #E6E6E5;
 }
 
-.function {
+#content {
+  display: flex;
+  flex-direction: column;
+}
+
+.func {
   color: #4BA6CB;
   font-style: italic;
 }
@@ -17,11 +22,18 @@ html {
   color: #75715E;
 }
 
-.math {
+.key {
   color: #D07E22;
 }
 
-.indent {
-  display: block;
+.str {
+  color: #C9C26B;
+}
+
+.indent1 {
   text-indent: 20px;
+}
+
+.indent2 {
+  text-indent: 40px;
 }
