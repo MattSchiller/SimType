@@ -19832,8 +19832,6 @@
 	      var typed = this.state.typed,
 	          typedPos = typed.length - 1;
 
-	      console.log("classVal:", classVal);
-
 	      typed[typedPos].className += typed[typedPos].className == "" ? classVal : " " + classVal;
 	      typed.push(new TypedBucket());
 
@@ -19870,20 +19868,6 @@
 	  },
 
 	  convertTyped: function convertTyped() {
-	    // let self = this
-	    //   , formattedTyped = this.state.typed.map(function(segment, i) {
-	    //     //console.log(segment);
-	    //       if (~segment.className.indexOf( self._newLine )) {
-	    //         return <br key = { i } />
-
-	    //       } else if (~segment.className.indexOf( self._indent ))
-	    //         return <pre>  </pre>
-
-	    //       else {
-
-	    //       }
-	    //     });
-
 	    var typed = this.state.typed,
 	        j = 0,
 	        formattedTyped = [];
@@ -19903,7 +19887,10 @@
 
 	        formattedTyped.push(React.createElement(
 	          'div',
-	          { className: thisLineClass },
+	          {
+	            className: thisLineClass,
+	            key: j
+	          },
 	          lineContents
 	        ));
 	      } else {

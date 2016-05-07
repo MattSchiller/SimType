@@ -155,8 +155,6 @@ var SimType = React.createClass({
       let typed = this.state.typed
         , typedPos = typed.length - 1;
       
-      console.log("classVal:", classVal);
-      
       typed[ typedPos ].className += typed[ typedPos ].className == "" ? classVal : " " + classVal;
       typed.push( new TypedBucket );
       
