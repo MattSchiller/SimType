@@ -61,11 +61,11 @@
 
 
 	  render: function render() {
-	    var content = "~Cindent0~" + "function " + "~Cfunc~" + "getContactInfo" + "~CfuncName~" + "() {" + "~l0~" + "~Cindent1~" + "var" + "~Cfunc~" + " email " + "~ckey~" + "= " + "~q+~" + "~p500~" + "matt.s.schiller@gmail.com" + "~q-~",
-	        options = { classes: true };
+	    var content = "~Cindent0~" + "function " + "~Cfunc~" + "getModuleName" + "~CfuncName~" + "() {" + "~l0~" + "~p350~" + "~Cindent1~" + "var" + "~Cfunc~" + " name   " + "~ckey~" + "= " + "~q+~" + "~p350~" + "simType.jsx" + "~q-~" + ";" + "~l0~" + "~p350~" + "~Cindent1~" + "var" + "~Cfunc~" + " author " + "~ckey~" + "= " + "~q+~" + "~p350~" + "Matt Schiller (c) 1987" + "~p500~" + "~b4~" + "2016" + "~q-~" + ";" + "~l0~" + "~Cindent0~" + "}" + "~l0~" + "~Cindent0~" + " " + "~l0~" //Dummy line
+	     + "~Cindent0~" + "function " + "~Cfunc~" + "getContactInfo" + "~CfuncName~" + "() {" + "~l0~" + "~p350~" + "~Cindent1~" + "var" + "~Cfunc~" + " email " + "~ckey~" + "= " + "~q+~" + "~p350~" + "matt.s.schiller@gmail.com" + "~q-~" + ";" + "~l0~" + "~Cindent0~" + "}";
+
 	    return React.createElement(SimType, {
-	      content: content,
-	      options: options
+	      content: content
 	    });
 	  }
 
@@ -19692,10 +19692,7 @@
 
 	  getDefaultProps: function getDefaultProps() {
 	    return {
-	      content: "",
-	      options: {
-	        classes: true
-	      }
+	      content: ""
 	    };
 	  },
 
@@ -19706,6 +19703,7 @@
 	    this._qChar = '"';
 	    this._newLine = "line";
 	    this._indent = "indent";
+	    this._str = "str";
 
 	    this.updateTyped();
 	  },
@@ -19782,7 +19780,7 @@
 
 	      if (Number.isInteger(iterations)) {
 
-	        typed[typedPos].text = typed[typedPos].text.slice(0, -1);
+	        if (this._quoting) typed[typedPos].text = typed[typedPos].text.slice(0, -2) + this._qChar;else typed[typedPos].text = typed[typedPos].text.slice(0, -1) + this._qChar;
 
 	        //RIGHT NOW WE LIMIT BEHAVIOR TO NEVER ALLOW BACKSPACING MORE THAN THE CURRENT TEXT BUCKET
 
@@ -19859,7 +19857,7 @@
 
 	      if (onOrOff == '+') {
 	        this._quoting = true;
-	        typed.push(new TypedBucket(this._qChar + this._qChar, "str"));
+	        typed.push(new TypedBucket(this._qChar + this._qChar, this._str));
 	      } else this._quoting = false;
 
 	      this.setState({ typed: typed, contentPos: contentPos });
@@ -19904,6 +19902,7 @@
 	  },
 
 	  toSpan: function toSpan(segment, j) {
+	    //Handles the conversion of the TypedBuckets into spans
 	    return React.createElement(
 	      'span',
 	      {

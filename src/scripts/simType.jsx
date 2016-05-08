@@ -14,10 +14,7 @@ var SimType = React.createClass({
   getDefaultProps: function() {
     return {
         content: ""
-      , options: {
-            classes: true
-          }
-      }
+    }
   },
   
   componentDidMount: function() {
@@ -27,6 +24,7 @@ var SimType = React.createClass({
     this._qChar       = '"';
     this._newLine     = "line";
     this._indent      = "indent";
+    this._str         = "str";
     
     this.updateTyped();
   },
@@ -104,7 +102,10 @@ var SimType = React.createClass({
 
       if (Number.isInteger(iterations)) {
       
-        typed[ typedPos ].text = typed[ typedPos ].text.slice(0, -1);
+        if (this._quoting)
+          typed[ typedPos ].text = typed[ typedPos ].text.slice(0, -2) + this._qChar;
+        else
+          typed[ typedPos ].text = typed[ typedPos ].text.slice(0, -1) + this._qChar;
         
   //RIGHT NOW WE LIMIT BEHAVIOR TO NEVER ALLOW BACKSPACING MORE THAN THE CURRENT TEXT BUCKET
         
@@ -182,7 +183,7 @@ var SimType = React.createClass({
       
       if (onOrOff == '+') {
         this._quoting = true;
-        typed.push( new TypedBucket( this._qChar + this._qChar, "str" ));
+        typed.push( new TypedBucket( this._qChar + this._qChar, this._str ));
       } else this._quoting = false;
       
       this.setState({ typed, contentPos });
@@ -228,6 +229,7 @@ var SimType = React.createClass({
   },
   
   toSpan: function(segment, j) {
+    //Handles the conversion of the TypedBuckets into spans
     return <span
               className = { segment.className }
               key = { j } >

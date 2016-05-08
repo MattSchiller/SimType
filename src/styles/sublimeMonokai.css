@@ -1,7 +1,8 @@
 html {
   font-family: Inconsolata, sans-serif;
-  background: #49483E;
+  background: #2D3B45;
   color: #E6E6E5;
+  font-weight: bold;
 }
 
 #content {
@@ -9,13 +10,17 @@ html {
   flex-direction: column;
 }
 
+span {
+  white-space: pre;
+}
+
 .func {
-  color: #4BA6CB;
+  color: #66D9EF;
   font-style: italic;
 }
 
 .funcName {
-  color: #80B028;
+  color: #A6E22E;
 }
 
 .comment {
@@ -23,11 +28,11 @@ html {
 }
 
 .key {
-  color: #D07E22;
+  color: #F92672;
 }
 
 .str {
-  color: #C9C26B;
+  color: #E6DB74;
 }
 
 .indent1 {
