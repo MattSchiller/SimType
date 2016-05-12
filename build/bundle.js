@@ -20164,7 +20164,7 @@
 	var About = {
 	    stub: "~Cindent0~~ccomment~<!DOCTYPE html>~l0~" + "~Cindent0~~l0~" + "~Cindent0~~ccomment~<!--Hi, I'm Matt Schiller, a Web Developer and freelance Technical Consultant.~l0~" + "~Cindent0~~l0~",
 
-	    writing: "~Cindent0~~ccomment~I've built this project to try to recreate the look of the Sublime text editor in the browser (clearly not all of teh~p700~~b3~the functionality. The library works on a simple mark-up language much akin to HTML. I decided to reconstruct it so I could have both the 'pre' and 'post' applied styles, such as when writing a string and it's colored the whole time you type it, vs keywords bursting into color the second you finish them.-->~l0~" + "~Cindent0~~l0~" + "~Cindent0~~ccomment~There's a more robust README over at ~c0~github~ahttp://www.github.com/MattSchiller/SimType~~c0~ so go check it out!~l0~" + "~Cindent0~<~ckey~html~c0~>~l0~" + "~Cindent1~<~ckey~body~c0~>~l0~" + "~Cindent2~Also, feel free to navigate in the tabs above to check out other file types~l0~" + "~Cindent1~</~ckey~body~c0~>~l0~" + "~Cindent0~</~ckey~html~c0~>~l0~"
+	    writing: "~Cindent0~~ccomment~I've built this project to try to recreate the look of the Sublime text editor in the browser (clearly not all of teh~p700~~b3~the functionality). The library works on a simple mark-up language much akin to HTML. I decided to reconstruct it so I could have both the 'pre' and 'post' applied styles, such as when writing a string and it's colored the whole time you type it, vs keywords bursting into color the second you finish them.~l0~" + "~Cindent0~~l0~" + "~Cindent0~~ccomment~There's a more robust README over at ~c0~github~ahttp://www.github.com/MattSchiller/SimType~~ccomment~ so go check it out!-->~l0~" + "~Cindent0~<~ckey~html~c0~>~l0~" + "~Cindent1~<~ckey~body~c0~>~l0~" + "~Cindent2~Also, feel free to navigate in the tabs above to check out other file types~l0~" + "~Cindent1~</~ckey~body~c0~>~l0~" + "~Cindent0~</~ckey~html~c0~>~l0~"
 	};
 
 	module.exports = About;
@@ -20178,11 +20178,11 @@
 	var SampleJS = [{
 	  stub: "~Cindent0~~ccomment~// Ahh, good ole JavaScript formatting~l0~" + "~Cindent0~~l0~" + "~Cindent0~~ccomment~// Let's see what a simple function might look like with the context highlighting doing it's thing:~l0~",
 
-	  writing: "~Cindent0~function~Cfunc~ superImportantMethod~CfuncName~(~carg~meaningOfLife = 42~c0~) {~l0~" + "~Cindent1~var~Cfunc~ ultimateQ ~ckey~= ~q+~What is six times seven?~q-~~c0~;~l0~" + "~Cindent0~}"
+	  writing: "~Cindent0~function~Cfunc~ superImportantMethod~CfuncName~(~carg~meaningOfLife = 42~c0~) {~l0~" + "~p350~" + "~Cindent1~var~Cfunc~ ultimateQ ~ckey~= ~q+~What is six times seven?~q-~~c0~;~l0~" + "~Cindent0~}"
 	}, {
 	  stub: "~Cindent0~~l0~" + "~Cindent0~~ccomment~/* So here we have multiple blocks of simulated code, but in order to keep the line numbers on the left from restaarting, the source for this page has been primed with a 'numStart' variable. It's simply the number of linebreaks in the previous SimType.~l0~" + "~Cindent0~~ccomment~You know, I should code in a means for the SimType component to just figure that out on its own!~l0~" + "~Cindent0~~l0~",
 
-	  writing: "~Cindent0~function~Cfunc~ writeAutoNumLine~CfuncName~() {~l0~" + "~p350~" + "~Cindent1~" + "var~Cfunc~ updateDate ~ckey~= ~c0~new~Ckey~ Date(~q+~1/1/2017~q-~);~l0~" + "~Cindent1~if~Cfunc~ (~c0~Date~Cfunc~.now() ~ckey~>=~c0~ updateDate)~l0~" + "~Cindent2~console.~c0~log~Cfunc~(~q+~Hey Matt! Come make these fixes already!~q-~);~l0~" + "~Cindent1~else~Cfunc~ {~l0~" + "~Cindent2~setTimeout({ ~c0~function~Cfunc~() {~l0~" + "~Cindent3~writeAutoNumLine();~l0~" + "~Cindent2~}, 10000})~l0~" + "~Cindent0~}",
+	  writing: "~Cindent0~function~Cfunc~ writeAutoNumLine~CfuncName~() {~l0~" + "~p350~" + "~Cindent1~" + "var~Cfunc~ updateDate ~ckey~= ~c0~new~Ckey~ Date(~q+~1/1/2017~q-~);~l0~" + "~p350~" + "~Cindent1~if~Ckey~ (~c0~Date~Cfunc~.now() ~ckey~>=~c0~ updateDate)~l0~" + "~p350~" + "~Cindent2~console.~c0~log~Cfunc~(~q+~Hey Matt! Come make these fixes already!~q-~);~l0~" + "~p350~" + "~Cindent1~else~Ckey~ {~l0~" + "~p350~" + "~Cindent2~setTimeout({ ~c0~function~Cfunc~() {~l0~" + "~p350~" + "~Cindent3~writeAutoNumLine();~l0~" + "~p350~" + "~Cindent2~}, 10000})~l0~" + "~Cindent0~}",
 	  numStart: 9
 
 	}];

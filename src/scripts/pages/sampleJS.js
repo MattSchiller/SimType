@@ -6,7 +6,7 @@ var SampleJS = [
         
     , writing:
         "~Cindent0~function~Cfunc~ superImportantMethod~CfuncName~(~carg~meaningOfLife = 42~c0~) {~l0~"
-        + "~Cindent1~var~Cfunc~ ultimateQ ~ckey~= ~q+~What is six times seven?~q-~~c0~;~l0~"
+        + "~p350~"  + "~Cindent1~var~Cfunc~ ultimateQ ~ckey~= ~q+~What is six times seven?~q-~~c0~;~l0~"
       + "~Cindent0~}"
   }
   , {
@@ -19,12 +19,12 @@ var SampleJS = [
    + "~p350~" + "~Cindent1~"
                   + "var~Cfunc~ updateDate ~ckey~= ~c0~new~Ckey~ Date(~q+~1/1/2017~q-~);~l0~"
                   
-              + "~Cindent1~if~Cfunc~ (~c0~Date~Cfunc~.now() ~ckey~>=~c0~ updateDate)~l0~"
-                + "~Cindent2~console.~c0~log~Cfunc~(~q+~Hey Matt! Come make these fixes already!~q-~);~l0~"
-              + "~Cindent1~else~Cfunc~ {~l0~"
-                + "~Cindent2~setTimeout({ ~c0~function~Cfunc~() {~l0~"
-                  + "~Cindent3~writeAutoNumLine();~l0~"
-                + "~Cindent2~}, 10000})~l0~"
+  + "~p350~" + "~Cindent1~if~Ckey~ (~c0~Date~Cfunc~.now() ~ckey~>=~c0~ updateDate)~l0~"
+    + "~p350~" + "~Cindent2~console.~c0~log~Cfunc~(~q+~Hey Matt! Come make these fixes already!~q-~);~l0~"
+  + "~p350~" + "~Cindent1~else~Ckey~ {~l0~"
+    + "~p350~" + "~Cindent2~setTimeout({ ~c0~function~Cfunc~() {~l0~"
+      + "~p350~" + "~Cindent3~writeAutoNumLine();~l0~"
+    + "~p350~" + "~Cindent2~}, 10000})~l0~"
               + "~Cindent0~}"
     , numStart: 9
 
