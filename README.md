@@ -11,4 +11,6 @@ I'll flesh out this a bit more later, but right now this is a project I'm workin
 
 I've built out the features that seemed necessary to me, but feel free to request/make other additions/changes as you see fit.
 
+Click [here](https://simtype.matthewschiller.com/) for the demo.
+
 Thanks for looking!
