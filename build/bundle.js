@@ -55,18 +55,88 @@
 
 	var React = __webpack_require__(2);
 	var SimType = __webpack_require__(159);
+	var Menu = __webpack_require__(161);
+
+	var About = __webpack_require__(162);
+	var SampleJS = __webpack_require__(163);
+	var SampleStyle = __webpack_require__(164);
 
 	var App = React.createClass({
 	  displayName: 'App',
 
+	  getInitialState: function getInitialState() {
+	    return {
+	      menuIndex: 0,
+	      menuItems: ["about.html", "sampleJS.js", "sampleStyle.css"],
+	      content: [[About], SampleJS, [SampleStyle]]
+	    };
+	  },
+
+	  menuClick: function menuClick(menuIndex) {
+	    if (menuIndex != this.state.menuIndex) this.setState({ menuIndex: menuIndex });
+	  },
 
 	  render: function render() {
-	    var content = "~Cindent0~" + "function " + "~Cfunc~" + "getModuleName" + "~CfuncName~" + "() {" + "~l0~" + "~p350~" + "~Cindent1~" + "var" + "~Cfunc~" + " name   " + "~ckey~" + "= " + "~q+~" + "~p350~" + "simType.jsx" + "~q-~" + ";" + "~l0~" + "~p350~" + "~Cindent1~" + "var" + "~Cfunc~" + " author " + "~ckey~" + "= " + "~q+~" + "~p350~" + "Matt Schiller (c) 1987" + "~p500~" + "~b4~" + "2016" + "~q-~" + ";" + "~l0~" + "~Cindent0~" + "}" + "~l0~" + "~Cindent0~" + " " + "~l0~" //Dummy line
-	     + "~Cindent0~" + "function " + "~Cfunc~" + "getContactInfo" + "~CfuncName~" + "() {" + "~l0~" + "~p350~" + "~Cindent1~" + "var" + "~Cfunc~" + " email " + "~ckey~" + "= " + "~q+~" + "~p350~" + "matt.s.schiller@gmail.com" + "~q-~" + ";" + "~l0~" + "~Cindent0~" + "}";
+	    var pages = this.state.content.map(function (content, i) {
+	      var myElements = [];
+	      var _iteratorNormalCompletion = true;
+	      var _didIteratorError = false;
+	      var _iteratorError = undefined;
 
-	    return React.createElement(SimType, {
-	      content: content
-	    });
+	      try {
+	        for (var _iterator = content[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+	          var eachContent = _step.value;
+
+	          myElements.push(React.createElement(SimType, { content: eachContent,
+	            options: {
+	              show: i == this.state.menuIndex },
+	            key: i + myElements.length
+	          }));
+	        }
+	      } catch (err) {
+	        _didIteratorError = true;
+	        _iteratorError = err;
+	      } finally {
+	        try {
+	          if (!_iteratorNormalCompletion && _iterator.return) {
+	            _iterator.return();
+	          }
+	        } finally {
+	          if (_didIteratorError) {
+	            throw _iteratorError;
+	          }
+	        }
+	      }
+
+	      return myElements;
+	    }.bind(this));
+
+	    return React.createElement(
+	      'div',
+	      null,
+	      React.createElement(
+	        'div',
+	        { id: 'header' },
+	        React.createElement(
+	          'h2',
+	          { onClick: function () {
+	              this.menuClick(0);
+	            }.bind(this)
+	          },
+	          'Sim Type'
+	        ),
+	        React.createElement(Menu, {
+	          items: this.state.menuItems,
+	          clicked: this.menuClick,
+	          currInd: this.state.menuIndex
+	        })
+	      ),
+	      React.createElement(
+	        'div',
+	        { id: 'codePages' },
+	        pages
+	      )
+	    );
 	  }
 
 	});
@@ -19675,6 +19745,8 @@
 
 	'use strict';
 
+	var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
+
 	var React = __webpack_require__(2);
 	var TypedBucket = __webpack_require__(160);
 
@@ -19692,7 +19764,14 @@
 
 	  getDefaultProps: function getDefaultProps() {
 	    return {
-	      content: ""
+	      content: {
+	        stub: "",
+	        writing: "",
+	        numStart: 0
+	      },
+	      options: {
+	        animate: true //NEED TO ADD ANIMATE TOGGLE, maybe
+	        , show: false }
 	    };
 	  },
 
@@ -19704,66 +19783,119 @@
 	    this._newLine = "line";
 	    this._indent = "indent";
 	    this._str = "str";
+	    this._contentWrt = "writing";
+	    this._contentStb = "stub";
 
-	    this.updateTyped();
+	    this.updateTyped(this._contentStb);
+
+	    //this.updateTyped( this._contentWrt );
 	  },
 
 	  componentDidUpdate: function componentDidUpdate() {
-	    this.updateTyped();
+	    this.updateTyped(this._contentWrt);
 	  },
 
-	  updateTyped: function updateTyped() {
-	    if (this.state.contentPos >= this.props.content.length - 1) return;
+	  updateTyped: function updateTyped(contentType) {
+	    if (!this.props.options.show && contentType == this._contentWrt) return;
 
-	    if (this._backspacing) return;
+	    var textSrc = void 0;
+	    if (contentType == this._contentWrt) textSrc = this.props.content.writing;else if (contentType == this._contentStb) textSrc = this.props.content.stub;
 
-	    var contentPos = this.state.contentPos + 1,
-	        nextChar = this.props.content[contentPos];
+	    var contentPos = this.state.contentPos,
+	        typed = void 0,
+	        timeout = void 0,
+	        loopLen = contentType == this._contentStb ? textSrc.length : contentPos + 1;
+
+	    while (contentPos < loopLen) {
+	      var _singleChar = this.singleChar(textSrc, contentPos);
+
+	      var _singleChar2 = _slicedToArray(_singleChar, 3);
+
+	      typed = _singleChar2[0];
+	      contentPos = _singleChar2[1];
+	      timeout = _singleChar2[2];
+	    }
+
+	    if (typed == false) return;
+
+	    if (contentType == this._contentStb) //Reset contentPos
+	      contentPos = this.getInitialState().contentPos;
+
+	    var self = this;
+	    if (timeout) {
+	      setTimeout(function () {
+	        self.setState({ typed: typed, contentPos: contentPos });
+	      }, timeout);
+	    } else //To avoid any race conditions with backspace and so on
+	      this.setState({ typed: typed, contentPos: contentPos });
+	  },
+
+	  singleChar: function singleChar(textSrc, contentPos) {
+	    //Given the marked up source, returns the variables needed to create the next state
+	    var nullifyCall = [false, contentPos + 1, false];
+
+	    if (this.state.contentPos >= textSrc.length - 1) return nullifyCall;
+
+	    if (this._backspacing) return nullifyCall;
+
+	    contentPos++;
+
+	    var nextChar = textSrc[contentPos],
+	        typed = this.state.typed,
+	        timeout = 0;
 
 	    if (nextChar == this._escape) {
 	      //Let's attempt to execute the action command
-	      if (contentPos + 1 < this.props.content.length) {
+	      if (contentPos + 1 < textSrc.length) {
 	        contentPos++;
 
-	        var actionChar = this.props.content[contentPos];
-	        this.attemptAction(actionChar, contentPos);
+	        var actionChar = textSrc[contentPos];
+
+	        var _attemptAction = this.attemptAction(actionChar, contentPos, textSrc);
+
+	        var _attemptAction2 = _slicedToArray(_attemptAction, 3);
+
+	        typed = _attemptAction2[0];
+	        contentPos = _attemptAction2[1];
+	        timeout = _attemptAction2[2];
+
+
+	        if (actionChar == "b") return nullifyCall; //Backspace handles its own looping
+	      }
+	    } else {
+	        //We're appending a regular character or an errored escape char
+
+	        if (this._quoting) {
+	          //Insert next char before trailing space
+	          var text = typed[typed.length - 1].text,
+	              len = text.length;
+
+	          typed[typed.length - 1].text = text.slice(0, -1) + nextChar + text.slice(len - 1);
+	        } else typed[typed.length - 1].text += nextChar;
+
+	        timeout = this._charTimeout * Math.random();
 	      }
 
-	      return;
-	    }
-
-	    //We're appending a regular character or an errored escape char
-	    var typed = this.state.typed,
-	        self = this;
-
-	    if (this._quoting) {
-	      //Insert next char befor trailing space
-	      var text = typed[typed.length - 1].text,
-	          len = text.length;
-
-	      typed[typed.length - 1].text = text.slice(0, -1) + nextChar + text.slice(len - 1);
-	    } else typed[typed.length - 1].text += nextChar;
-
-	    setTimeout(function () {
-	      self.setState({ typed: typed, contentPos: contentPos });
-	    }, self._charTimeout * Math.random());
+	    return [typed, contentPos, timeout];
 	  },
 
-	  attemptAction: function attemptAction(action, contentPos) {
+	  attemptAction: function attemptAction(action, contentPos, textSrc) {
 	    //Backspace: ~b#, # = number of backspaces
 	    //Pause:     ~p#, # = time in ms to wait
 	    if (this.escapedActions[action]) {
 	      contentPos++;
-	      var value = this.getValue(contentPos),
+	      var value = this.getValue(contentPos, textSrc),
 	          digits = value.toString().length;
 
 	      contentPos += digits;
-	      this.escapedActions[action].call(this, value, contentPos);
+
+	      //We call the respective action, returning the values necessary for processing
+	      return this.escapedActions[action].call(this, value, contentPos);
 	    }
 	  },
 
-	  getValue: function getValue(contentPos) {
-	    var str = this.props.content.substring(contentPos, this.props.content.length),
+	  getValue: function getValue(contentPos, textSrc) {
+	    var str = textSrc.substring(contentPos, textSrc.length),
 	        val = str.match(/[^~]+/);
 
 	    if (val.length == 0) return false;
@@ -19772,7 +19904,10 @@
 
 	  escapedActions: {
 	    b: function b(iterations, contentPos) {
-	      //Backspace
+	      //Backspace, a negative number indicates no timeout should be used with # backspaces
+
+	      //FOR NEGATIVE NUMBERS, SHOULD GO RIGHT TO THE NEXT CHARACTER, omit timeout entirely?
+
 	      var typed = this.state.typed,
 	          typedPos = typed.length - 1;
 
@@ -19780,39 +19915,34 @@
 
 	      if (Number.isInteger(iterations)) {
 
-	        if (this._quoting) typed[typedPos].text = typed[typedPos].text.slice(0, -2) + this._qChar;else typed[typedPos].text = typed[typedPos].text.slice(0, -1) + this._qChar;
+	        if (this._quoting) typed[typedPos].text = typed[typedPos].text.slice(0, -2) + this._qChar;else typed[typedPos].text = typed[typedPos].text.slice(0, -1);
 
 	        //RIGHT NOW WE LIMIT BEHAVIOR TO NEVER ALLOW BACKSPACING MORE THAN THE CURRENT TEXT BUCKET
 
 	        //Check if this text bucket is empty
-	        if (typed[typedPos].text.length == 0 || iterations == 1) {
+	        if (typed[typedPos].text.length == 0 || Math.abs(iterations) == 1) {
 	          //We're done backspacing after this call
 	          this._backspacing = false;
-	          if (typed[typedPos].text.length != 0) typed.push[new TypedBucket()];
 	        } else {
 	          this._backspacing = true;
 
 	          var self = this,
-	              nextIterations = iterations - 1;
+	              nextIterations = iterations > 0 ? iterations - 1 : iterations + 1;
 
 	          setTimeout(function () {
 	            self.escapedActions.b.call(self, nextIterations, contentPos);
-	          }, self._backTimeout);
+	          }, iterations > 0 ? self._backTimeout : 0);
 	        }
 	      }
 
 	      this.setState({ typed: typed, contentPos: contentPos });
+
+	      return [false, false, false];
 	    },
 
 	    p: function p(timeout, contentPos) {
 	      //Pause
-	      var self = this;
-
-	      timeout = parseInt(timeout);
-
-	      setTimeout(function () {
-	        self.setState({ contentPos: contentPos });
-	      }, timeout);
+	      return [this.state.typed, contentPos, parseInt(timeout)];
 	    },
 
 	    c: function c(classVal, contentPos) {
@@ -19822,7 +19952,7 @@
 
 	      typed.push(new TypedBucket("", classVal));
 
-	      this.setState({ typed: typed, contentPos: contentPos });
+	      return [typed, contentPos];
 	    },
 
 	    C: function C(classVal, contentPos) {
@@ -19833,22 +19963,18 @@
 	      typed[typedPos].className += typed[typedPos].className == "" ? classVal : " " + classVal;
 	      typed.push(new TypedBucket());
 
-	      this.setState({ typed: typed, contentPos: contentPos });
+	      return [typed, contentPos];
 	    },
 
-	    l: function l(immaterial, contentPos) {
+	    l: function l(immaterialVar, contentPos) {
 	      //Inserts the number of line breaks specified
-	      var typed = this.state.typed,
-	          typedPos = typed.length;
+	      var typed = this.state.typed;
 
 	      typed.push(new TypedBucket());
-	      typed[typedPos].className = this._newLine;
+	      typed[typed.length - 1].className = this._newLine;
 	      typed.push(new TypedBucket());
 
-	      var self = this;
-	      setTimeout(function () {
-	        self.setState({ typed: typed, contentPos: contentPos });
-	      }, self._charTimeout);
+	      return [typed, contentPos, self._charTimeout];
 	    },
 
 	    q: function q(onOrOff, contentPos) {
@@ -19858,9 +19984,21 @@
 	      if (onOrOff == '+') {
 	        this._quoting = true;
 	        typed.push(new TypedBucket(this._qChar + this._qChar, this._str));
-	      } else this._quoting = false;
+	      } else {
+	        this._quoting = false;
+	        typed.push(new TypedBucket());
+	      }
 
-	      this.setState({ typed: typed, contentPos: contentPos });
+	      return [typed, contentPos];
+	    },
+
+	    a: function a(link, contentPos) {
+	      //Overloads the current TypedBucket with a link value for toSpan to recognize
+	      var typed = this.state.typed;
+
+	      typed[typed.length - 1].link = link;
+
+	      return [typed, contentPos];
 	    }
 
 	  },
@@ -19883,13 +20021,24 @@
 	          j++;
 	        }
 
+	        var lineNum = formattedTyped.length + 1 + (this.props.content.numStart || 0);
+
+	        lineNum = lineNum < 10 ? " " + lineNum.toString() : lineNum;
+
+	        var lineData = this.toSpan(new TypedBucket(lineNum, "lineNum", ""));
+
 	        formattedTyped.push(React.createElement(
 	          'div',
-	          {
-	            className: thisLineClass,
-	            key: j
-	          },
-	          lineContents
+	          { key: j,
+	            className: 'wholeLine' },
+	          lineData,
+	          React.createElement(
+	            'div',
+	            {
+	              className: thisLineClass },
+	            lineContents,
+	            React.createElement('br', null)
+	          )
 	        ));
 	      } else {
 	        formattedTyped.push(this.toSpan(typed[j], j));
@@ -19902,22 +20051,27 @@
 	  },
 
 	  toSpan: function toSpan(segment, j) {
-	    //Handles the conversion of the TypedBuckets into spans
-	    return React.createElement(
+	    //Handles the conversion of the TypedBuckets into spans/a hrefs
+	    return segment.link == "" ? React.createElement(
 	      'span',
 	      {
 	        className: segment.className,
+	        key: j },
+	      segment.text
+	    ) : React.createElement(
+	      'a',
+	      { href: segment.link,
+	        target: '_blank',
 	        key: j },
 	      segment.text
 	    );
 	  },
 
 	  render: function render() {
-	    var myClass = "thisClass";
 	    return React.createElement(
 	      'div',
-	      null,
-	      this.convertTyped()
+	      { className: 'simType' },
+	      this.props.options.show ? this.convertTyped() : null
 	    );
 	  }
 
@@ -19934,12 +20088,120 @@
 	var TypedBucket = function TypedBucket() {
 	  var text = arguments.length <= 0 || arguments[0] === undefined ? "" : arguments[0];
 	  var className = arguments.length <= 1 || arguments[1] === undefined ? "" : arguments[1];
+	  var link = arguments.length <= 2 || arguments[2] === undefined ? "" : arguments[2];
 
 	  this.text = text;
 	  this.className = className;
+	  this.link = link;
 	};
 
 	module.exports = TypedBucket;
+
+/***/ },
+/* 161 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	var React = __webpack_require__(2);
+
+	var Menu = React.createClass({
+	  displayName: "Menu",
+
+	  getDefaultProps: function getDefaultProps() {
+	    return {
+	      items: []
+	    };
+	  },
+
+	  formatItems: function formatItems() {
+	    var myItems = this.props.items.map(function (item, i) {
+	      return React.createElement(
+	        "li",
+	        { key: i,
+	          id: "menu" + i,
+	          onClick: function () {
+	            this.props.clicked(i);
+	          }.bind(this),
+	          className: i == this.props.currInd ? "current" : ""
+	        },
+	        React.createElement(
+	          "span",
+	          null,
+	          item
+	        )
+	      );
+	    }.bind(this));
+
+	    return React.createElement(
+	      "ul",
+	      null,
+	      myItems
+	    );
+	  },
+
+	  render: function render() {
+	    return React.createElement(
+	      "div",
+	      { className: "tabs" },
+	      React.createElement(
+	        "nav",
+	        null,
+	        this.formatItems()
+	      )
+	    );
+	  }
+	});
+
+	module.exports = Menu;
+
+/***/ },
+/* 162 */
+/***/ function(module, exports) {
+
+	"use strict";
+
+	var About = {
+	    stub: "~Cindent0~~ccomment~<!DOCTYPE html>~l0~" + "~Cindent0~~l0~" + "~Cindent0~~ccomment~<!--Hi, I'm Matt Schiller, a Web Developer and freelance Technical Consultant.~l0~" + "~Cindent0~~l0~",
+
+	    writing: "~Cindent0~~ccomment~I've built this project to try to recreate the look of the Sublime text editor in the browser (clearly not all of teh~p700~~b3~the functionality. The library works on a simple mark-up language much akin to HTML. I decided to reconstruct it so I could have both the 'pre' and 'post' applied styles, such as when writing a string and it's colored the whole time you type it, vs keywords bursting into color the second you finish them.-->~l0~" + "~Cindent0~~l0~" + "~Cindent0~~ccomment~There's a more robust README over at ~c0~github~ahttp://www.github.com/MattSchiller/SimType~~c0~ so go check it out!~l0~" + "~Cindent0~<~ckey~html~c0~>~l0~" + "~Cindent1~<~ckey~body~c0~>~l0~" + "~Cindent2~Also, feel free to navigate in the tabs above to check out other file types~l0~" + "~Cindent1~</~ckey~body~c0~>~l0~" + "~Cindent0~</~ckey~html~c0~>~l0~"
+	};
+
+	module.exports = About;
+
+/***/ },
+/* 163 */
+/***/ function(module, exports) {
+
+	"use strict";
+
+	var SampleJS = [{
+	  stub: "~Cindent0~~ccomment~// Ahh, good ole JavaScript formatting~l0~" + "~Cindent0~~l0~" + "~Cindent0~~ccomment~// Let's see what a simple function might look like with the context highlighting doing it's thing:~l0~",
+
+	  writing: "~Cindent0~function~Cfunc~ superImportantMethod~CfuncName~(~carg~meaningOfLife = 42~c0~) {~l0~" + "~Cindent1~var~Cfunc~ ultimateQ ~ckey~= ~q+~What is six times seven?~q-~~c0~;~l0~" + "~Cindent0~}"
+	}, {
+	  stub: "~Cindent0~~l0~" + "~Cindent0~~ccomment~/* So here we have multiple blocks of simulated code, but in order to keep the line numbers on the left from restaarting, the source for this page has been primed with a 'numStart' variable. It's simply the number of linebreaks in the previous SimType.~l0~" + "~Cindent0~~ccomment~You know, I should code in a means for the SimType component to just figure that out on its own!~l0~" + "~Cindent0~~l0~",
+
+	  writing: "~Cindent0~function~Cfunc~ writeAutoNumLine~CfuncName~() {~l0~" + "~p350~" + "~Cindent1~" + "var~Cfunc~ updateDate ~ckey~= ~c0~new~Ckey~ Date(~q+~1/1/2017~q-~);~l0~" + "~Cindent1~if~Cfunc~ (~c0~Date~Cfunc~.now() ~ckey~>=~c0~ updateDate)~l0~" + "~Cindent2~console.~c0~log~Cfunc~(~q+~Hey Matt! Come make these fixes already!~q-~);~l0~" + "~Cindent1~else~Cfunc~ {~l0~" + "~Cindent2~setTimeout({ ~c0~function~Cfunc~() {~l0~" + "~Cindent3~writeAutoNumLine();~l0~" + "~Cindent2~}, 10000})~l0~" + "~Cindent0~}",
+	  numStart: 9
+
+	}];
+
+	module.exports = SampleJS;
+
+/***/ },
+/* 164 */
+/***/ function(module, exports) {
+
+	"use strict";
+
+	var SampleStyle = {
+	    stub: "~Cindent0~~ccomment~/* Ah, CSS, the bane of so many hopeful Web Devs. I'll keep this short just to show how page-agnostic this all is. Also, the fancy 'pre' formatted spacing to align lines of code nicely.*/~l0~" + "~Cindent0~~l0~",
+
+	    writing: "~Cindent0~.myClass~CfuncName~ {~l0~" + "~Cindent1~color~Cfunc~~cspace~:      ~c0~indigo;~l0~" + "~Cindent1~margin-top~Cfunc~: ~c0~8~c0~px~Ckey~;~l0~" + "~Cindent0~" + "}"
+	};
+
+	module.exports = SampleStyle;
 
 /***/ }
 /******/ ]);

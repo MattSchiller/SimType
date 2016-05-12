@@ -7,5 +7,8 @@ I'll flesh out this a bit more later, but right now this is a project I'm workin
   * Use of indent# classes are crucial to properly formatting the output.
 * Linebreak [character: l]: followed by a dummy value, I use 0, ends the current line that's being typed.
 * Quotes [character: q]: followed by a + or -, indicates that a string is being typed. Simulates the auto-complete of the double-quotes.
+* Hyperlinks [character a]: Operates independently of class (though it does override any existing formatting when applied), used to create linked text, the escape character is followed immediately by the link itself.
 
-More info as this gets built out!
+I've built out the features that seemed necessary to me, but feel free to request/make other additions/changes as you see fit.
+
+Thanks for looking!
